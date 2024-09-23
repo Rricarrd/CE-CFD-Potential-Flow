@@ -48,13 +48,41 @@ public:
     {
         return m_Data[y * cols + x];
     }
-
-    // more methods go here
 };
 
+// Main function
 int main()
 {
-    Matrix<double, N, M> mesh;
+
+    cout << "Hola";
+
+    // Defining mesh matrix
+    Matrix<Node, N, M> mesh;
+
+    // Mesh dimensions
+    double dx = L / (N - 1);
+    double dy = H / (M - 1);
+
+    // FIlling mesh with nodes
+    for (int i = 0; i < N; i++)
+    {
+
+        for (int j = 0; j < M; j++)
+        {
+            mesh(i, j) = Node();
+            mesh(i, j).x = dx * (0.5 + i);
+            mesh(i, j).y = dy * (0.5 + j);
+        }
+    }
+
+    // Plotting mesh
+    for (int i = 0; i < N; i++)
+    {
+        for (int j = 0; j < M; j++)
+        {
+            cout << mesh(i, j).x << " " << mesh(i, j).y << "\n";
+        }
+    }
 
     return 0;
 };
