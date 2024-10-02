@@ -35,6 +35,7 @@ void buildMesh(vector<vector<node>> &mesh, Parameters p)
         {
             mesh[i][j].x = (i * p.dx) + 0.5 * p.dx;
             mesh[i][j].y = (j * p.dy) + 0.5 * p.dy;
+
             double dist = sqrt(pow(mesh[i][j].x - p.cylinder_x, 2) + pow(mesh[i][j].y - p.cylinder_y, 2));
             if (dist < p.cylinder_r)
             {
@@ -111,10 +112,10 @@ void exportData(vector<vector<node>> &mesh)
     {
         for (int j = 1; j < M - 1; j += 1)
         {
-            if (mesh[i][j].is_solid == false)
-            {
-                outfile << mesh[i][j].x << "," << mesh[i][j].y << "," << mesh[i][j].u << "," << mesh[i][j].v << "," << mesh[i][j].stream << "," << mesh[i][j].rho << "," << mesh[i][j].cp << "," << mesh[i][j].is_solid << endl;
-            }
+            // if (mesh[i][j].is_solid == false)
+            //{
+            outfile << mesh[i][j].x << "," << mesh[i][j].y << "," << mesh[i][j].u << "," << mesh[i][j].v << "," << mesh[i][j].stream << "," << mesh[i][j].rho << "," << mesh[i][j].cp << "," << mesh[i][j].is_solid << endl;
+            //}
         }
     }
     outfile.close();
