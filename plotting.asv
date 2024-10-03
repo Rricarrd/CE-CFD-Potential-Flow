@@ -3,7 +3,7 @@ clear;
 N=100;
 
 % Data input and preocessing
-data = readtable('output/output.csv');
+data = readtable('output/output_static_n100.csv');
 X = table2array(data(:,1));
 Y = table2array(data(:,2));
 U = table2array(data(:,3));
@@ -17,19 +17,16 @@ solid = table2array(data(:,8));
 %% %% QUIVER PLOT 
 figure(1)
 quiver(X, Y, U, V); % quiver plotting (input positions and velocities)
-
-% Cylinder drawing
-c = [0.5, 0.5];
-r = 0.15;
-phi = linspace(0, 2*pi);
-x_r = r*cos(phi) + c(1);
-y_r = r*sin(phi) + c(2);
-patch(x_r,y_r,'black');
-
-%Plot parameters
 xlabel('X-axis [m]');
 ylabel('Y-axis [m]');
-title('Velocity field','Interpreter','latex');
+title('Velocity field');
+
+% Cylinder drawing
+center = [0.5, 0.5];
+r = 0.15;
+rectangle('Position', [center(1) - radius, center(2) - radius, 2 * radius, 2 * radius], 'Curvature', [1, 1], 'FaceColor', 'black');
+
+
 grid on
 axis equal
 
@@ -48,39 +45,36 @@ c_bar.Label.String = 'Pressure Coefficient (Cp)';
 % Cylinder drawing
 c = [0.5, 0.5];
 r = 0.15;
-phi = linspace(0, 2*pi);
-x_r = r*cos(phi) + c(1);
-y_r = r*sin(phi) + c(2);
-patch(x_r,y_r,'black');
+ang = 
+rectangle('Position', [c(1)-r, c(2) - r, 2*r, 2*r], 'Curvature', [1, 1], 'FaceColor', 'black');
 
-%Plot parameters
 xlabel('X-axis [m]');
 ylabel('Y-axis [m]');
-title('Stream lines ($\psi$)','Interpreter','latex');
+title('Velocity field');
 grid on
 axis equal
-colormap cool
 
 %% %% CYLINDER PLOT
 figure(3)
+c=0;
 
-% Grid of solid nodes (binary)
-k=0;
-solid_mesh = zeros(N-2,N-2);
 for i=1:N-2
     for j=1:N-2
-        k=k+1;
-        solid_mesh(i,j)=solid(k,1);
+        c=c+1;
+        meshData(i,j)=solid(c,1);
     end
 end
 
-% Plot mesh as a binary file
-imshow(solid_mesh, 'InitialMagnification', 'fit');
-colormap(gca, [1 1 1; 0 0 0]); % Set the colormap to white and black
+% Create a binary image where false values are white (0) and true values are black (1)
+binaryImage = ~~meshData; % Use the ~ operator to invert the values
 
-% Plot parameters
-title('Mesh nodes');
-xlabel('X-axis [m]');
-ylabel('Y-axis [m]');
-grid on
+% Display the binary image with white for false and black for true
+imshow(binaryImage, 'InitialMagnification', 'fit');
+colormap(gca, [1 1 1; 0 0 0]); % Set the colormap to white and black
+colorbar; % Optional: Display a colorbar to show the mapping
+
+% Optional: Add title and axis labels
+title('Binary Image of Mesh Data');
+xlabel('X-axis');
+ylabel('Y-axis');
 
