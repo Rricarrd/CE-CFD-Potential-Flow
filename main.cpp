@@ -28,26 +28,31 @@ int main(void)
     setRho(mesh, p);
 
     // Compute stream function
-    computeStream(mesh, p);                            // stream solver
-    calculateVelocity(mesh, p);                        // calculating velocity
-    calculateCp(mesh, p);                              // calculating pressure coeficient distribution
-    double circulation = cylinderCirculation(mesh, p); // calculate circulation around cilinder
-    struct Coefficients c = cylinderForces(mesh, p);   // calculate forces around cilinder
-    exportData(mesh);                                  // export data to file output.dat
+    computeStream(mesh, p);                                     // stream solver
+    calculateVelocity(mesh, p);                                 // calculating velocity
+    calculateCp(mesh, p);                                       // calculating pressure coeficient distribution
+    calculatePressureTemperature(mesh, p);                      // calculating pressure and temperature
+    double circulation = calculateCylinderCirculation(mesh, p); // calculate circulation around cilinder
+    struct Coefficients c = cylinderForces(mesh, p);            // calculate forces around cilinder
+    exportData(mesh);                                           // export data to file output.dat
 
     // Compute analytic stream function
     vector<vector<node>> analytic_mesh(N, vector<node>(M));
     buildMesh(analytic_mesh, p);                             // creating the mesh
     computeAnalyticStream(analytic_mesh, p);                 // stream solver
+    calculateVelocity(mesh, p);                              // calculating velocity
+    calculateCp(mesh, p);                                    // calculating pressure coeficient distribution
+    calculatePressureTemperature(mesh, p);                   // calculating pressure and temperature
     exportData(analytic_mesh, "output/analytic_output.csv"); // export data to file output.dat
-    double maxError = analyticError(mesh, analytic_mesh);    // calculating error
+
+    vector<vector<node>> error_mesh = analyticError(mesh, analytic_mesh); // calculating error
+    exportData(error_mesh, "output/error_output.csv");
 
     // Print final results
     cout << "### POTENTIAL FLOW RESULTS ###" << endl;
     cout << "C_L = " << c.C_L << endl;
     cout << "C_D = " << c.C_D << endl;
-    cout << "Cylinder cicrulation = " << circulation << endl;
-    cout << "Analytic error = " << maxError << endl;
-
+    cout << "Cylinder circulation = " << circulation << endl;
+    cout << "Equivalent rotation speed = " << circulation / (2 * M_PI * p.cylinder_r * p.cylinder_r) << endl;
     return 0;
 }

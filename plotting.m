@@ -1,6 +1,12 @@
 clear;
 % Some parameters
-N=100;
+N = 100;
+M = 100;
+L = 1;
+H = 1;
+c = [L/2, H/2];
+r = 0.1;
+
 
 % Data input and preprocessing
 data = readtable('output/output.csv');
@@ -21,6 +27,14 @@ rho_a = table2array(data_a(:,6));
 Cp_a = table2array(data_a(:,7));
 solid_a = table2array(data_a(:,8));
 
+data_e = readtable('output/error_output.csv');
+X_e = table2array(data_e(:,1));
+Y_e = table2array(data_e(:,2));
+S_e = table2array(data_e(:,5));
+rho_e = table2array(data_e(:,6));
+Cp_e = table2array(data_e(:,7));
+solid_e = table2array(data_e(:,8));
+
 
 
 
@@ -29,8 +43,6 @@ figure(1)
 quiver(X, Y, U, V); % quiver plotting (input positions and velocities)
 
 % Cylinder drawing
-c = [0.5, 0.5];
-r = 0.15;
 phi = linspace(0, 2*pi);
 x_r = r*cos(phi) + c(1);
 y_r = r*sin(phi) + c(2);
@@ -47,7 +59,7 @@ axis equal
 %% %% CONTOUR PLOT
 figure(2)
 %Contour plotting
-[x_grid,y_grid] = meshgrid(linspace(0,1,N),linspace(0,1,N)); 
+[x_grid,y_grid] = meshgrid(linspace(0,L,M),linspace(0,H,N)); 
 p_grid = griddata(X, Y, S ,x_grid,y_grid); %interpolates surface from  mesh and streamline values (cubic interpolation)
 contour(x_grid,y_grid,p_grid,'LevelList',linspace(min(S),max(S),50))
 
@@ -56,8 +68,6 @@ c_bar = colorbar;
 c_bar.Label.String = 'Pressure Coefficient (Cp)';
 
 % Cylinder drawing
-c = [0.5, 0.5];
-r = 0.15;
 phi = linspace(0, 2*pi);
 x_r = r*cos(phi) + c(1);
 y_r = r*sin(phi) + c(2);
@@ -66,7 +76,7 @@ patch(x_r,y_r,'black');
 %Plot parameters
 xlabel('X-axis [m]');
 ylabel('Y-axis [m]');
-title('Stream lines ($\psi$)','Interpreter','latex');
+title('Numerical stream lines ($\psi$)','Interpreter','latex');
 grid on
 axis equal
 colormap cool
@@ -75,17 +85,15 @@ colormap cool
 %% %% ANALYTIC CONTOUR PLOT
 figure(3)
 %Contour plotting
-[x_grid_a,y_grid_a] = meshgrid(linspace(0,1,N),linspace(0,1,N)); 
+[x_grid_a,y_grid_a] = meshgrid(linspace(0,L,M),linspace(0,H,N)); 
 p_grid_a = griddata(X_a, Y_a, S_a ,x_grid_a,y_grid_a); %interpolates surface from  mesh and streamline values (cubic interpolation)
-contour(x_grid_a,y_grid_a,p_grid_a,'LevelList',linspace(min(S_a),max(S_a),50))
+contour(x_grid_a,y_grid_a,p_grid_a,'LevelList',linspace(min(S),max(S),50))
 
 % Colorbar
 c_bar = colorbar;
 c_bar.Label.String = 'Pressure Coefficient (Cp)';
 
 % Cylinder drawing
-c = [0.5, 0.5];
-r = 0.15;
 phi = linspace(0, 2*pi);
 x_r = r*cos(phi) + c(1);
 y_r = r*sin(phi) + c(2);
@@ -94,7 +102,7 @@ patch(x_r,y_r,'black');
 %Plot parameters
 xlabel('X-axis [m]');
 ylabel('Y-axis [m]');
-title('Stream lines ($\psi$)','Interpreter','latex');
+title('Analytic stream lines ($\psi$)','Interpreter','latex');
 grid on
 axis equal
 colormap cool

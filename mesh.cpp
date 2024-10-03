@@ -15,7 +15,7 @@ using namespace std;
 // node struct
 struct node
 {
-    double x, y, u, v, cp, stream, rho;
+    double x, y, u, v, cp, stream, rho, T, p;
     bool is_solid;
 };
 

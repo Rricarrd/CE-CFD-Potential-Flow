@@ -5,6 +5,8 @@
 // Universitat Politècnica de Catalunya (UPC)
 // Overview: Stream computing functions
 
+#define pass (void)0
+
 #include <iostream>
 #include <vector>
 #include <cmath>
@@ -106,6 +108,7 @@ void computeStream(vector<vector<node>> &mesh, Parameters p)
                 }
                 else if (i == N - 1) // Outlet nodes
                 {
+
                     next_stream_value[i][j] = last_stream_value[i - 1][j];
                 }
                 else // Internal nodes
@@ -203,7 +206,7 @@ void calculateVelocity(vector<vector<node>> &mesh, Parameters p)
  * @param mesh Mesh matrix (vector of vectors) to be filled with Node structs
  * @param p Parameters of the simulation
  */
-double cylinderCirculation(vector<vector<node>> &mesh, Parameters p)
+double calculateCylinderCirculation(vector<vector<node>> &mesh, Parameters p)
 {
     double vxn, vye, vxs, vyw, d_PN, d_Pn, d_Nn, d_PE, d_Pe, d_Ee, d_PS, d_Ps, d_Ss, d_PW, d_Pw, d_Ww;
     double circulation = 0;
@@ -276,6 +279,27 @@ void calculateCp(vector<vector<node>> &mesh, Parameters p)
 }
 
 /**
+ * Calculates pressure and temperature of the mesh nodes.
+ *
+ * @param mesh Mesh matrix (vector of vectors) to be filled with Node structs
+ * @param p Parameters of the simulation
+ */
+void calculatePressureTemperature(vector<vector<node>> &mesh, Parameters p)
+{
+    double v = 0;
+    for (int i = 1; i < N - 1; i++)
+    {
+        for (int j = 1; j < M - 1; j++)
+        {
+            v = sqrt(mesh[i][j].u * mesh[i][j].u + mesh[i][j].v * mesh[i][j].v);
+            mesh[i][j].T = p.t_in + (p.v_in * p.v_in - v * v) / (2 * p.specific_heat);
+            mesh[i][j].p = p.p_in * pow(mesh[i][j].T / p.t_in, p.gamma / (p.gamma - 1));
+            mesh[i][j].cp = 1 - (v / p.v_in) * (v / p.v_in);
+        }
+    }
+}
+
+/**
  * Calculates the forces around the cylinder. It uses the pressure coefficient values
  * to calculate the lift and drag coefficients of the cylinder.
  *
@@ -297,14 +321,17 @@ struct Coefficients cylinderForces(vector<vector<node>> &mesh, Parameters p)
                 {
                     c.C_L += (mesh[i][j - 1].cp * q + p.p_in) * p.dx;
                 }
+
                 if (mesh[i][j + 1].is_solid == false)
                 {
                     c.C_L += -(mesh[i][j + 1].cp * q + p.p_in) * p.dx;
                 }
+
                 if (mesh[i - 1][j].is_solid == false)
                 {
                     c.C_D += (mesh[i - 1][j].cp * q + p.p_in) * p.dy;
                 }
+
                 if (mesh[i + 1][j].is_solid == false)
                 {
                     c.C_D += -(mesh[i + 1][j].cp * q + p.p_in) * p.dy;
@@ -334,9 +361,7 @@ pair<double, double> cartesianToPolar(double x, double y)
 }
 
 /**
- * Computes the stream function of the mesh nodes. It uses the discretized stream function
- * equation to solve the stream values of the nodes. The function iterates until the error
- * is below a certain threshold.
+ * Computes the analytic stream function of the mesh nodes.
  *
  * @param mesh Mesh matrix (vector of vectors) to be filled with Node structs
  * @param p Parameters of the simulation
@@ -350,28 +375,13 @@ void computeAnalyticStream(vector<vector<node>> &mesh, Parameters p)
             pair<double, double> polar;
             pair<double, double> cartesian;
 
-            polar = cartesianToPolar(mesh[i][j].x - 0.5, mesh[i][j].y - 0.5);
+            polar = cartesianToPolar(mesh[i][j].x - p.H / 2, mesh[i][j].y - p.H / 2);
 
-            if (j == 0) // Bottom channel nodes
-            {
-                mesh[i][j].stream = 0;
-            }
-            else if (j == M - 1) // Top channel nodes
-            {
-                mesh[i][j].stream = p.v_in * p.H;
-            }
-            else if (i == 0) // Inlet nodes
-            {
-                mesh[i][j].stream = p.v_in * mesh[i][j].y;
-            }
-            else if (i == N - 1) // Outlet nodes
-            {
-                mesh[i][j].stream = mesh[i - 1][j].stream;
-            }
-            else // Internal nodes
-            {
-                mesh[i][j].stream = abs(p.v_in * (polar.first - (p.cylinder_r * p.cylinder_r) / polar.first) * sin(polar.second));
-            }
+            double input_flow = p.v_in * p.H / 2;
+            double cylinder = p.v_in * (polar.first - (p.cylinder_r * p.cylinder_r) / polar.first) * sin(polar.second);
+            // double circulation = p.cylinder_r * p.cylinder_r * log(polar.first) * p.v_in; // <missing rotation speed
+
+            mesh[i][j].stream = input_flow + cylinder; // + circulation;
         }
     }
 }
@@ -382,19 +392,15 @@ void computeAnalyticStream(vector<vector<node>> &mesh, Parameters p)
  * @param v1 Matrix (Vector of vectors) to compare
  * @param v2 Matrix (Vector of vectors) to compare
  */
-double analyticError(vector<vector<node>> numerical, vector<vector<node>> analytical)
+vector<vector<node>> analyticError(vector<vector<node>> numerical, vector<vector<node>> analytical)
 {
-    double maxError = 0.0;
+    vector<vector<node>> error_matrix(N, vector<node>(M));
     for (int i = 0; i < N; i++)
     {
         for (int j = 0; j < M; j++)
         {
-            double diff = abs(numerical[i][j].stream - analytical[i][j].stream);
-            if (diff > maxError)
-            {
-                maxError = diff;
-            }
+            error_matrix[i][j].stream = numerical[i][j].stream - analytical[i][j].stream;
         }
     }
-    return maxError;
+    return error_matrix;
 }
