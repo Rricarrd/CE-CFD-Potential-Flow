@@ -94,22 +94,18 @@ void computeStream(vector<vector<node>> &mesh, Parameters p)
 
                 if (j == 0) // Bottom channel nodes
                 {
-                    // a_e = 0, a_s = 0, a_w = 0, a_n = 0, a_p = 1, b_p = 0 --> stream value as function of x
                     next_stream_value[i][j] = 0;
                 }
                 else if (j == M - 1) // Top channel nodes
                 {
-                    // a_e = 0, a_s = 0, a_w = 0, a_n = 0, a_p = 1, b_p = p.v_in * p.H --> velocity gradient at the top
                     next_stream_value[i][j] = p.v_in * p.H;
                 }
                 else if (i == 0) // Inlet nodes
                 {
-                    // a_e = 0, a_s = 0, a_w = 0, a_n = 0, a_p = 1, b_p = 0 --> stream value as function of x
                     next_stream_value[i][j] = p.v_in * mesh[i][j].y;
                 }
                 else if (i == N - 1) // Outlet nodes
                 {
-                    // a_e = 0, a_s = 0, a_w = 1, a_n = 0, a_p = 1, b_p = 0 --> stream value as function of x
                     next_stream_value[i][j] = last_stream_value[i - 1][j];
                 }
                 else // Internal nodes
@@ -321,4 +317,84 @@ struct Coefficients cylinderForces(vector<vector<node>> &mesh, Parameters p)
     c.C_D = c.C_D / (q * 2 * p.cylinder_r);
 
     return c;
+}
+
+/**
+ * Converts Cartesian coordinates to polar coordinates.
+ *
+ * @param x The x-coordinate in Cartesian coordinates.
+ * @param y The y-coordinate in Cartesian coordinates.
+ * @return A pair where the first element is the radius (r) and the second element is the angle (theta) in radians.
+ */
+pair<double, double> cartesianToPolar(double x, double y)
+{
+    double r = sqrt(x * x + y * y);
+    double theta = atan2(y, x);
+    return make_pair(r, theta);
+}
+
+/**
+ * Computes the stream function of the mesh nodes. It uses the discretized stream function
+ * equation to solve the stream values of the nodes. The function iterates until the error
+ * is below a certain threshold.
+ *
+ * @param mesh Mesh matrix (vector of vectors) to be filled with Node structs
+ * @param p Parameters of the simulation
+ */
+void computeAnalyticStream(vector<vector<node>> &mesh, Parameters p)
+{
+    for (int i = 0; i < N; i++)
+    {
+        for (int j = 0; j < M; j++)
+        {
+            pair<double, double> polar;
+            pair<double, double> cartesian;
+
+            polar = cartesianToPolar(mesh[i][j].x - 0.5, mesh[i][j].y - 0.5);
+
+            if (j == 0) // Bottom channel nodes
+            {
+                mesh[i][j].stream = 0;
+            }
+            else if (j == M - 1) // Top channel nodes
+            {
+                mesh[i][j].stream = p.v_in * p.H;
+            }
+            else if (i == 0) // Inlet nodes
+            {
+                mesh[i][j].stream = p.v_in * mesh[i][j].y;
+            }
+            else if (i == N - 1) // Outlet nodes
+            {
+                mesh[i][j].stream = mesh[i - 1][j].stream;
+            }
+            else // Internal nodes
+            {
+                mesh[i][j].stream = abs(p.v_in * (polar.first - (p.cylinder_r * p.cylinder_r) / polar.first) * sin(polar.second));
+            }
+        }
+    }
+}
+
+/**
+ * Compares two matrices and returns the maximum error between them.
+ *
+ * @param v1 Matrix (Vector of vectors) to compare
+ * @param v2 Matrix (Vector of vectors) to compare
+ */
+double analyticError(vector<vector<node>> numerical, vector<vector<node>> analytical)
+{
+    double maxError = 0.0;
+    for (int i = 0; i < N; i++)
+    {
+        for (int j = 0; j < M; j++)
+        {
+            double diff = abs(numerical[i][j].stream - analytical[i][j].stream);
+            if (diff > maxError)
+            {
+                maxError = diff;
+            }
+        }
+    }
+    return maxError;
 }

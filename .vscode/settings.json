@@ -47,6 +47,11 @@
         "typeinfo": "cpp",
         "span": "cpp",
         "charconv": "cpp",
-        "format": "cpp"
+        "format": "cpp",
+        "cstdarg": "cpp",
+        "ctime": "cpp",
+        "fstream": "cpp",
+        "text_encoding": "cpp",
+        "variant": "cpp"
     }
 }

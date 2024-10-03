@@ -19,13 +19,15 @@ using namespace std;
  */
 int main(void)
 {
-    // SI Units
+
+    // Main mesh
     Parameters p;
     vector<vector<node>> mesh(N, vector<node>(M));
     buildMesh(mesh, p); // creating the mesh
     setStream(mesh, p); // setting initial values
     setRho(mesh, p);
 
+    // Compute stream function
     computeStream(mesh, p);                            // stream solver
     calculateVelocity(mesh, p);                        // calculating velocity
     calculateCp(mesh, p);                              // calculating pressure coeficient distribution
@@ -33,11 +35,19 @@ int main(void)
     struct Coefficients c = cylinderForces(mesh, p);   // calculate forces around cilinder
     exportData(mesh);                                  // export data to file output.dat
 
+    // Compute analytic stream function
+    vector<vector<node>> analytic_mesh(N, vector<node>(M));
+    buildMesh(analytic_mesh, p);                             // creating the mesh
+    computeAnalyticStream(analytic_mesh, p);                 // stream solver
+    exportData(analytic_mesh, "output/analytic_output.csv"); // export data to file output.dat
+    double maxError = analyticError(mesh, analytic_mesh);    // calculating error
+
     // Print final results
-    std::cout << "### POTENTIAL FLOW RESULTS ###" << std::endl;
-    std::cout << "C_L = " << c.C_L << std::endl;
-    std::cout << "C_D = " << c.C_D << std::endl;
-    std::cout << "Cylinder cicrulation = " << circulation << std::endl;
+    cout << "### POTENTIAL FLOW RESULTS ###" << endl;
+    cout << "C_L = " << c.C_L << endl;
+    cout << "C_D = " << c.C_D << endl;
+    cout << "Cylinder cicrulation = " << circulation << endl;
+    cout << "Analytic error = " << maxError << endl;
 
     return 0;
 }

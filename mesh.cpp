@@ -104,18 +104,15 @@ void setStream(vector<vector<node>> &mesh, Parameters p)
  *
  * @param mesh Mesh matrix
  */
-void exportData(vector<vector<node>> &mesh)
+void exportData(vector<vector<node>> &mesh, string filename = "output/output.csv")
 {
-    ofstream outfile("output/output.csv");
+    ofstream outfile(filename);
     outfile << "X,Y,U,V,Stream,Density,Cp,Solid" << endl;
     for (int i = 1; i < N - 1; i += 1)
     {
         for (int j = 1; j < M - 1; j += 1)
         {
-            // if (mesh[i][j].is_solid == false)
-            //{
             outfile << mesh[i][j].x << "," << mesh[i][j].y << "," << mesh[i][j].u << "," << mesh[i][j].v << "," << mesh[i][j].stream << "," << mesh[i][j].rho << "," << mesh[i][j].cp << "," << mesh[i][j].is_solid << endl;
-            //}
         }
     }
     outfile.close();
