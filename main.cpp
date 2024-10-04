@@ -11,7 +11,9 @@
 #include <cmath>
 #include <fstream>
 #include "compute_potential.cpp"
+#include <chrono>
 using namespace std;
+using namespace std::chrono;
 
 /**
  * Main function of the program. It initializes the mesh, computes the stream
@@ -28,7 +30,10 @@ int main(void)
     setRho(mesh, p);
 
     // Compute stream function
-    computeStream(mesh, p);                                     // stream solver
+    auto start = high_resolution_clock::now();
+    computeStream(mesh, p); // stream solver
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
     calculateVelocity(mesh, p);                                 // calculating velocity
     calculateCp(mesh, p);                                       // calculating pressure coeficient distribution
     calculatePressureTemperature(mesh, p);                      // calculating pressure and temperature
@@ -39,8 +44,8 @@ int main(void)
 
     name = p.folder + p.mesh_number + "_results.csv";
     ofstream outfile_r(name);
-    outfile_r << "L,H,R,N,M,Cl,Cd,Circ" << endl;
-    outfile_r << p.L << "," << p.H << "," << p.cylinder_r << "," << N << "," << M << "," << c.C_L << "," << c.C_D << "," << circulation << endl;
+    outfile_r << "L,H,R,N,M,Cl,Cd,Circ,t" << endl;
+    outfile_r << p.L << "," << p.H << "," << p.cylinder_r << "," << N << "," << M << "," << c.C_L << "," << c.C_D << "," << circulation << "," << duration.count() / 1000 << endl;
 
     // Compute analytic stream function
     vector<vector<node>> analytic_mesh(N, vector<node>(M));
@@ -62,5 +67,6 @@ int main(void)
     cout << "C_D = " << c.C_D << endl;
     cout << "Cylinder circulation = " << circulation << endl;
     cout << "Equivalent rotation speed = " << circulation / (2 * M_PI * p.cylinder_r * p.cylinder_r) << endl;
+    cout << "Computation time = " << duration.count() / 1000 << "ms" << endl;
     return 0;
 }

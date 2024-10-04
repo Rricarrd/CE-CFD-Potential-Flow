@@ -80,12 +80,13 @@ void computeStream(vector<vector<node>> &mesh, Parameters p)
     double a_n, a_e, a_s, a_w, a_p, b_p;
     double d_PE, d_Pe, d_Ee, d_PS, d_Ps, d_Ss, d_PW, d_Pw, d_Ww, d_PN, d_Pn, d_Nn;
     double error = p.initial_error;
+    double gauss_seidel;
 
     vector<vector<double>> next_stream_value(N, vector<double>(M));
     vector<vector<double>> last_stream_value(N, vector<double>(M));
 
     fillStream(next_stream_value, mesh, p);
-
+    int cont = 0;
     while (error > p.delta)
     {
         last_stream_value = next_stream_value;
@@ -117,7 +118,7 @@ void computeStream(vector<vector<node>> &mesh, Parameters p)
                     d_PE = p.dx;
                     d_Pe = p.dx / 2;
                     d_Ee = p.dx / 2;
-                    a_e = (d_PE / ((d_Pe * mesh[i][j].rho + d_Ee * mesh[i + 1][j].rho) / p.rho_in)) * p.dy / d_PE;
+                    a_e = (p.dx / ((d_Pe * mesh[i][j].rho + d_Ee * mesh[i + 1][j].rho) / p.rho_in)) * p.dy / d_PE;
 
                     // South node
                     d_PS = p.dy;
@@ -139,12 +140,18 @@ void computeStream(vector<vector<node>> &mesh, Parameters p)
 
                     // Discretization of the stream function equation
                     a_p = a_n + a_e + a_s + a_w;
-                    next_stream_value[i][j] = (last_stream_value[i + 1][j] * a_e + last_stream_value[i - 1][j] * a_w + last_stream_value[i][j + 1] * a_n + last_stream_value[i][j - 1] * a_s + b_p) / a_p;
+                    gauss_seidel = (last_stream_value[i + 1][j] * a_e + last_stream_value[i - 1][j] * a_w + last_stream_value[i][j + 1] * a_n + last_stream_value[i][j - 1] * a_s + b_p) / a_p;
+                    next_stream_value[i][j] = last_stream_value[i][j] + p.relaxation_factor * (gauss_seidel - last_stream_value[i][j]);
                 }
             }
         }
         error = streamsError(next_stream_value, last_stream_value);
-        printf("Error = %f\n", error);
+        cont++;
+        if (cont == 100)
+        {
+            printf("Error = %f\n", error);
+            cont = 0;
+        }
     }
 
     for (int i = 0; i < N; i++)

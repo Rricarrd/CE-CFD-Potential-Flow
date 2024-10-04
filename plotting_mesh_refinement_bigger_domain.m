@@ -111,38 +111,38 @@ ylabel('Relative error (%)');
 title('Relative error along Y axis (X = 0.1)');
 colormap cool
 
-%% RESULTS CONVERGENCE
-L = 0;
-H = 0;
-R = 0;
-N = 0;
-M = 0;
-Cl = 0;
-Cd = 0;
-Circ = 0;
-
-for n=[15,25,50,75,100,150]
-   name = 'output_mesh_refining_bigger_domain\';
-   elems = sprintf('%i_results.csv',n);
-   data = table2array(readtable(append(name,elems)));
-   L = [L, str2double(data{1})];
-   H = [H, str2double(data{2})];
-   R = [R, str2double(data{3})];
-   N = [N, str2double(data{4})];
-   M = [M, str2double(data{5})];
-   Cl = [Cl, str2double(data{6})];
-   Cd = [Cd, str2double(data{7})];
-   Circ = [Circ, str2double(data{8})];
-    
-end
-   data = table2array(readtable('output_mesh_refining_bigger_domain\300_results.csv'));
-   L = [L, data(1)];
-   H = [H, data(2)];
-   R = [R, data(3)];
-   N = [N, data(4)];
-   M = [M, data(5)];
-   Cl = [Cl, data(6)];
-   Cd = [Cd, data(7)];
-   Circ = [Circ, data(8)];
-
-plot(N, Cl)
+% %% RESULTS CONVERGENCE
+% L = 0;
+% H = 0;
+% R = 0;
+% N = 0;
+% M = 0;
+% Cl = 0;
+% Cd = 0;
+% Circ = 0;
+% 
+% for n=[15,25,50,75,100,150]
+%    name = 'output_mesh_refining_bigger_domain\';
+%    elems = sprintf('%i_results.csv',n);
+%    data = table2array(readtable(append(name,elems)));
+%    L = [L, str2double(data{1})];
+%    H = [H, str2double(data{2})];
+%    R = [R, str2double(data{3})];
+%    N = [N, str2double(data{4})];
+%    M = [M, str2double(data{5})];
+%    Cl = [Cl, str2double(data{6})];
+%    Cd = [Cd, str2double(data{7})];
+%    Circ = [Circ, str2double(data{8})];
+%     
+% end
+%    data = table2array(readtable('output_mesh_refining_bigger_domain\300_results.csv'));
+%    L = [L, data(1)];
+%    H = [H, data(2)];
+%    R = [R, data(3)];
+%    N = [N, data(4)];
+%    M = [M, data(5)];
+%    Cl = [Cl, data(6)];
+%    Cd = [Cd, data(7)];
+%    Circ = [Circ, data(8)];
+% 
+% plot(N, Cl)
