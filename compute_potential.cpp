@@ -79,13 +79,13 @@ void computeStream(vector<vector<node>> &mesh, Parameters p)
 {
     double a_n, a_e, a_s, a_w, a_p, b_p;
     double d_PE, d_Pe, d_Ee, d_PS, d_Ps, d_Ss, d_PW, d_Pw, d_Ww, d_PN, d_Pn, d_Nn;
+    double error = p.initial_error;
 
     vector<vector<double>> next_stream_value(N, vector<double>(M));
     vector<vector<double>> last_stream_value(N, vector<double>(M));
 
     fillStream(next_stream_value, mesh, p);
 
-    double error = p.initial_error;
     while (error > p.delta)
     {
         last_stream_value = next_stream_value;
@@ -165,8 +165,8 @@ void computeStream(vector<vector<node>> &mesh, Parameters p)
  */
 void calculateVelocity(vector<vector<node>> &mesh, Parameters p)
 {
-    double vxn, vye, vxs, vyw;
-    double d_PN, d_Pn, d_Nn, d_PE, d_Pe, d_Ee, d_PS, d_Ps, d_Ss, d_PW, d_Pw, d_Ww;
+    double vxn, vye, vxs, vyw, d_PN, d_Pn, d_Nn, d_PE, d_Pe, d_Ee, d_PS, d_Ps, d_Ss, d_PW, d_Pw, d_Ww;
+
     for (int i = 1; i < N - 1; i++)
     {
         for (int j = 1; j < M - 1; j++)
@@ -208,8 +208,8 @@ void calculateVelocity(vector<vector<node>> &mesh, Parameters p)
  */
 double calculateCylinderCirculation(vector<vector<node>> &mesh, Parameters p)
 {
-    double vxn, vye, vxs, vyw, d_PN, d_Pn, d_Nn, d_PE, d_Pe, d_Ee, d_PS, d_Ps, d_Ss, d_PW, d_Pw, d_Ww;
-    double circulation = 0;
+    double vxn, vye, vxs, vyw, d_PN, d_Pn, d_Nn, d_PE, d_Pe, d_Ee, d_PS, d_Ps, d_Ss, d_PW, d_Pw, d_Ww, circ = 0;
+
     for (int i = 1; i < N - 1; i++)
     {
         for (int j = 1; j < M - 1; j++)
@@ -238,24 +238,24 @@ double calculateCylinderCirculation(vector<vector<node>> &mesh, Parameters p)
             {
                 if (mesh[i][j - 1].is_solid == false)
                 {
-                    circulation += vxs * p.dx;
+                    circ += vxs * p.dx;
                 }
                 if (mesh[i][j + 1].is_solid == false)
                 {
-                    circulation += -vxn * p.dx;
+                    circ += -vxn * p.dx;
                 }
                 if (mesh[i - 1][j].is_solid == false)
                 {
-                    circulation += -vyw * p.dy;
+                    circ += -vyw * p.dy;
                 }
                 if (mesh[i + 1][j].is_solid == false)
                 {
-                    circulation += vye * p.dy;
+                    circ += vye * p.dy;
                 }
             }
         }
     }
-    return circulation;
+    return circ;
 }
 
 /**
@@ -291,8 +291,8 @@ void calculatePressureTemperature(vector<vector<node>> &mesh, Parameters p)
     {
         for (int j = 1; j < M - 1; j++)
         {
-            v = sqrt(mesh[i][j].u * mesh[i][j].u + mesh[i][j].v * mesh[i][j].v);
-            mesh[i][j].T = p.t_in + (p.v_in * p.v_in - v * v) / (2 * p.specific_heat);
+            v = sqrt((mesh[i][j].u * mesh[i][j].u) + (mesh[i][j].v * mesh[i][j].v));
+            mesh[i][j].T = p.t_in + ((p.v_in * p.v_in) - (v * v)) / (2 * p.specific_heat);
             mesh[i][j].p = p.p_in * pow(mesh[i][j].T / p.t_in, p.gamma / (p.gamma - 1));
             mesh[i][j].cp = 1 - (v / p.v_in) * (v / p.v_in);
         }

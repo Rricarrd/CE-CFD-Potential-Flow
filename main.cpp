@@ -34,19 +34,27 @@ int main(void)
     calculatePressureTemperature(mesh, p);                      // calculating pressure and temperature
     double circulation = calculateCylinderCirculation(mesh, p); // calculate circulation around cilinder
     struct Coefficients c = cylinderForces(mesh, p);            // calculate forces around cilinder
-    exportData(mesh);                                           // export data to file output.dat
+    string name = p.folder + p.mesh_number + "_output.csv";
+    exportData(mesh, name); // export data to file output.dat
+
+    name = p.folder + p.mesh_number + "_results.csv";
+    ofstream outfile_r(name);
+    outfile_r << "L,H,R,N,M,Cl,Cd,Circ" << endl;
+    outfile_r << p.L << "," << p.H << "," << p.cylinder_r << "," << N << "," << M << "," << c.C_L << "," << c.C_D << "," << circulation << endl;
 
     // Compute analytic stream function
     vector<vector<node>> analytic_mesh(N, vector<node>(M));
-    buildMesh(analytic_mesh, p);                             // creating the mesh
-    computeAnalyticStream(analytic_mesh, p);                 // stream solver
-    calculateVelocity(mesh, p);                              // calculating velocity
-    calculateCp(mesh, p);                                    // calculating pressure coeficient distribution
-    calculatePressureTemperature(mesh, p);                   // calculating pressure and temperature
-    exportData(analytic_mesh, "output/analytic_output.csv"); // export data to file output.dat
+    buildMesh(analytic_mesh, p);             // creating the mesh
+    computeAnalyticStream(analytic_mesh, p); // stream solver
+    calculateVelocity(mesh, p);              // calculating velocity
+    calculateCp(mesh, p);                    // calculating pressure coeficient distribution
+    calculatePressureTemperature(mesh, p);   // calculating pressure and temperature
+    name = p.folder + p.mesh_number + "_analytic_output.csv";
+    exportData(analytic_mesh, name); // export data to file output.dat
 
     vector<vector<node>> error_mesh = analyticError(mesh, analytic_mesh); // calculating error
-    exportData(error_mesh, "output/error_output.csv");
+    name = p.folder + p.mesh_number + "_error_output.csv";
+    exportData(error_mesh, name);
 
     // Print final results
     cout << "### POTENTIAL FLOW RESULTS ###" << endl;
