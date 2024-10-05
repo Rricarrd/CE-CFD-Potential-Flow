@@ -22,10 +22,19 @@ solid = table2array(data(:,8));
 p = table2array(data(:,9));
 T = table2array(data(:,10));
 
+Vtot = sqrt(U.^2 + V.^2);
 
-%% %% QUIVER PLOT 
+
+%% %% CONTOUR PLOT
 figure(1)
-quiver(X, Y, U, V); % quiver plotting (input positions and velocities)
+%Contour plotting
+[x_grid,y_grid] = meshgrid(linspace(0,L,M),linspace(0,H,N)); 
+v_grid = griddata(X, Y, Vtot ,x_grid,y_grid); %interpolates surface from  mesh and streamline values (cubic interpolation)
+contourf(x_grid,y_grid,v_grid)
+
+% Colorbar
+c_bar = colorbar;
+c_bar.Label.String = 'Velocity [m/s]';
 
 % Cylinder drawing
 phi = linspace(0, 2*pi);
@@ -39,7 +48,8 @@ ylabel('Y-axis [m]');
 title('Velocity field','Interpreter','latex');
 grid on
 axis equal
-saveas(figure(1),'velocities_rotating_150.png')
+colormap cool
+
 
 %% %% CONTOUR PLOT
 figure(2)
