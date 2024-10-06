@@ -1,3 +1,10 @@
+// Last update: 2024/10/06
+// Author: Ricard Arbat Carandell
+
+// Master in Aerospace Engineering - Computational Engineering
+// Universitat Politècnica de Catalunya (UPC) - BarcelonaTech
+// Overview: Potential flow solution in a channel around a cilinder using the stream function formulation.
+
 #include <iostream>
 #include <cmath>
 #include <fstream>

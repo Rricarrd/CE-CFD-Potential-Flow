@@ -1,4 +1,4 @@
-// Last update: 2024/09/26
+// Last update: 2024/10/06
 // Author: Ricard Arbat Carandell
 
 // Master in Aerospace Engineering - Computational Engineering
@@ -77,8 +77,8 @@ void fillStream(vector<vector<double>> &initial_stream_value, vector<vector<node
  */
 void computeStream(vector<vector<node>> &mesh, Parameters p)
 {
-    double a_n, a_e, a_s, a_w, a_p, b_p;
-    double d_PE, d_Pe, d_Ee, d_PS, d_Ps, d_Ss, d_PW, d_Pw, d_Ww, d_PN, d_Pn, d_Nn;
+    double an, ae, as, aw, ap, b_p;
+    double dPE, dPe, dEe, dPS, dPs, dSs, dPW, dPw, dWw, dPN, dPn, dNn;
     double error = p.initial_error;
     double gauss_seidel;
 
@@ -115,32 +115,32 @@ void computeStream(vector<vector<node>> &mesh, Parameters p)
                 else // Internal nodes
                 {
                     // East node
-                    d_PE = p.dx;
-                    d_Pe = p.dx / 2;
-                    d_Ee = p.dx / 2;
-                    a_e = (p.dx / ((d_Pe * mesh[i][j].rho + d_Ee * mesh[i + 1][j].rho) / p.rho_in)) * p.dy / d_PE;
+                    dPE = p.dx;
+                    dPe = p.dx / 2;
+                    dEe = p.dx / 2;
+                    ae = (p.dx / ((dPe * mesh[i][j].rho + dEe * mesh[i + 1][j].rho) / p.rho_in)) * p.dy / dPE;
 
                     // South node
-                    d_PS = p.dy;
-                    d_Ps = p.dy / 2;
-                    d_Ss = p.dy / 2;
-                    a_s = (d_PS / ((d_Ps * mesh[i][j].rho + d_Ss * mesh[i][j - 1].rho) / p.rho_in)) * p.dx / d_PS;
+                    dPS = p.dy;
+                    dPs = p.dy / 2;
+                    dSs = p.dy / 2;
+                    as = (dPS / ((dPs * mesh[i][j].rho + dSs * mesh[i][j - 1].rho) / p.rho_in)) * p.dx / dPS;
 
                     // West node
-                    d_PW = p.dx;
-                    d_Pw = p.dx / 2;
-                    d_Ww = p.dx / 2;
-                    a_w = (d_PW / ((d_Pw * mesh[i][j].rho + d_Ww * mesh[i - 1][j].rho) / p.rho_in)) * p.dy / d_PW;
+                    dPW = p.dx;
+                    dPw = p.dx / 2;
+                    dWw = p.dx / 2;
+                    aw = (dPW / ((dPw * mesh[i][j].rho + dWw * mesh[i - 1][j].rho) / p.rho_in)) * p.dy / dPW;
 
                     // North node
-                    d_PN = p.dy;
-                    d_Pn = p.dy / 2;
-                    d_Nn = p.dy / 2;
-                    a_n = (d_PN / ((d_Pn * mesh[i][j].rho + d_Nn * mesh[i][j + 1].rho) / p.rho_in)) * p.dx / d_PN;
+                    dPN = p.dy;
+                    dPn = p.dy / 2;
+                    dNn = p.dy / 2;
+                    an = (dPN / ((dPn * mesh[i][j].rho + dNn * mesh[i][j + 1].rho) / p.rho_in)) * p.dx / dPN;
 
                     // Discretization of the stream function equation
-                    a_p = a_n + a_e + a_s + a_w;
-                    gauss_seidel = (last_stream_value[i + 1][j] * a_e + last_stream_value[i - 1][j] * a_w + last_stream_value[i][j + 1] * a_n + last_stream_value[i][j - 1] * a_s + b_p) / a_p;
+                    ap = an + ae + as + aw;
+                    gauss_seidel = (last_stream_value[i + 1][j] * ae + last_stream_value[i - 1][j] * aw + last_stream_value[i][j + 1] * an + last_stream_value[i][j - 1] * as + b_p) / ap;
                     next_stream_value[i][j] = last_stream_value[i][j] + p.relaxation_factor * (gauss_seidel - last_stream_value[i][j]);
                 }
             }
@@ -172,33 +172,33 @@ void computeStream(vector<vector<node>> &mesh, Parameters p)
  */
 void calculateVelocity(vector<vector<node>> &mesh, Parameters p)
 {
-    double vxn, vye, vxs, vyw, d_PN, d_Pn, d_Nn, d_PE, d_Pe, d_Ee, d_PS, d_Ps, d_Ss, d_PW, d_Pw, d_Ww;
+    double vxn, vye, vxs, vyw, dPN, dPn, dNn, dPE, dPe, dEe, dPS, dPs, dSs, dPW, dPw, dWw;
 
     for (int i = 1; i < N - 1; i++)
     {
         for (int j = 1; j < M - 1; j++)
         {
 
-            d_PE = p.dy;
-            d_Pe = p.dy / 2;
-            d_Ee = p.dy / 2;
-            vye = -(d_PE / ((d_Pe * mesh[i][j].rho + d_Ee * mesh[i + 1][j].rho) / p.rho_in)) * ((mesh[i + 1][j].stream - mesh[i][j].stream) / d_PE);
+            dPE = p.dy;
+            dPe = p.dy / 2;
+            dEe = p.dy / 2;
+            vye = -(dPE / ((dPe * mesh[i][j].rho + dEe * mesh[i + 1][j].rho) / p.rho_in)) * ((mesh[i + 1][j].stream - mesh[i][j].stream) / dPE);
 
-            d_PS = p.dx;
-            d_Ps = p.dx / 2;
-            d_Ss = p.dx / 2;
-            vxs = -(d_PS / ((d_Ps * mesh[i][j].rho + d_Ss * mesh[i][j - 1].rho) / p.rho_in)) * ((mesh[i][j - 1].stream - mesh[i][j].stream) / d_PS);
+            dPS = p.dx;
+            dPs = p.dx / 2;
+            dSs = p.dx / 2;
+            vxs = -(dPS / ((dPs * mesh[i][j].rho + dSs * mesh[i][j - 1].rho) / p.rho_in)) * ((mesh[i][j - 1].stream - mesh[i][j].stream) / dPS);
 
-            d_PW = p.dy;
-            d_Pw = p.dy / 2;
-            d_Ww = p.dy / 2;
-            vyw = (d_PW / ((d_Pw * mesh[i][j].rho + d_Ww * mesh[i - 1][j].rho) / p.rho_in)) * ((mesh[i - 1][j].stream - mesh[i][j].stream) / d_PW);
+            dPW = p.dy;
+            dPw = p.dy / 2;
+            dWw = p.dy / 2;
+            vyw = (dPW / ((dPw * mesh[i][j].rho + dWw * mesh[i - 1][j].rho) / p.rho_in)) * ((mesh[i - 1][j].stream - mesh[i][j].stream) / dPW);
 
             // North node
-            d_PN = p.dx;
-            d_Pn = p.dx / 2;
-            d_Nn = p.dx / 2;
-            vxn = (d_PN / ((d_Pn * mesh[i][j].rho + d_Nn * mesh[i][j + 1].rho) / p.rho_in)) * ((mesh[i][j + 1].stream - mesh[i][j].stream) / d_PN);
+            dPN = p.dx;
+            dPn = p.dx / 2;
+            dNn = p.dx / 2;
+            vxn = (dPN / ((dPn * mesh[i][j].rho + dNn * mesh[i][j + 1].rho) / p.rho_in)) * ((mesh[i][j + 1].stream - mesh[i][j].stream) / dPN);
 
             mesh[i][j].u = (vxn + vxs) / 2;
             mesh[i][j].v = (vye + vyw) / 2;
@@ -215,31 +215,31 @@ void calculateVelocity(vector<vector<node>> &mesh, Parameters p)
  */
 double calculateCylinderCirculation(vector<vector<node>> &mesh, Parameters p)
 {
-    double vxn, vye, vxs, vyw, d_PN, d_Pn, d_Nn, d_PE, d_Pe, d_Ee, d_PS, d_Ps, d_Ss, d_PW, d_Pw, d_Ww, circ = 0;
+    double vxn, vye, vxs, vyw, dPN, dPn, dNn, dPE, dPe, dEe, dPS, dPs, dSs, dPW, dPw, dWw, circ = 0;
 
     for (int i = 1; i < N - 1; i++)
     {
         for (int j = 1; j < M - 1; j++)
         {
-            d_PN = p.dy;
-            d_Pn = p.dy / 2;
-            d_Nn = p.dy / 2;
-            vxn = (d_PN / ((d_Pn * mesh[i][j].rho + d_Nn * mesh[i][j + 1].rho / p.rho_in))) * ((mesh[i][j + 1].stream - mesh[i][j].stream) / d_PN);
+            dPN = p.dy;
+            dPn = p.dy / 2;
+            dNn = p.dy / 2;
+            vxn = (dPN / ((dPn * mesh[i][j].rho + dNn * mesh[i][j + 1].rho / p.rho_in))) * ((mesh[i][j + 1].stream - mesh[i][j].stream) / dPN);
 
-            d_PE = p.dx;
-            d_Pe = p.dx / 2;
-            d_Ee = p.dx / 2;
-            vye = -(d_PE / ((d_Pe * mesh[i][j].rho + d_Ee * mesh[i + 1][j].rho / p.rho_in))) * ((mesh[i + 1][j].stream - mesh[i][j].stream) / d_PE);
+            dPE = p.dx;
+            dPe = p.dx / 2;
+            dEe = p.dx / 2;
+            vye = -(dPE / ((dPe * mesh[i][j].rho + dEe * mesh[i + 1][j].rho / p.rho_in))) * ((mesh[i + 1][j].stream - mesh[i][j].stream) / dPE);
 
-            d_PS = p.dy;
-            d_Ps = p.dy / 2;
-            d_Ss = p.dy / 2;
-            vxs = -(d_PS / ((d_Ps * mesh[i][j].rho + d_Ss * mesh[i][j - 1].rho / p.rho_in))) * ((mesh[i][j - 1].stream - mesh[i][j].stream) / d_PS);
+            dPS = p.dy;
+            dPs = p.dy / 2;
+            dSs = p.dy / 2;
+            vxs = -(dPS / ((dPs * mesh[i][j].rho + dSs * mesh[i][j - 1].rho / p.rho_in))) * ((mesh[i][j - 1].stream - mesh[i][j].stream) / dPS);
 
-            d_PW = p.dx;
-            d_Pw = p.dx / 2;
-            d_Ww = p.dx / 2;
-            vyw = (d_PW / ((d_Pw * mesh[i][j].rho + d_Ww * mesh[i - 1][j].rho / p.rho_in))) * ((mesh[i - 1][j].stream - mesh[i][j].stream) / d_PW);
+            dPW = p.dx;
+            dPw = p.dx / 2;
+            dWw = p.dx / 2;
+            vyw = (dPW / ((dPw * mesh[i][j].rho + dWw * mesh[i - 1][j].rho / p.rho_in))) * ((mesh[i - 1][j].stream - mesh[i][j].stream) / dPW);
 
             if (mesh[i][j].is_solid == true)
             {

@@ -1,4 +1,4 @@
-// Last update: 2024/09/26
+// Last update: 2024/10/06
 // Author: Ricard Arbat Carandell
 
 // Master in Aerospace Engineering - Computational Engineering
@@ -50,7 +50,7 @@ void buildMesh(vector<vector<node>> &mesh, Parameters p)
 }
 
 /**
- * Sets the initial density of the mesh nodes
+ * Sets the initial density of the mesh nodes.
  * Also checks if the node is solid and sets the solid density
  *
  * @param mesh Mesh matrix
@@ -103,6 +103,7 @@ void setStream(vector<vector<node>> &mesh, Parameters p)
  * Exports the mesh data to a CSV file
  *
  * @param mesh Mesh matrix
+ * @param filename Name of the file to be exported
  */
 void exportData(vector<vector<node>> &mesh, string filename = "output/output.csv")
 {
