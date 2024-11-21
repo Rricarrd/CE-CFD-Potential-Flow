@@ -1,7 +1,5 @@
 # CFD-CE
 
-Repository for the Section of CFD in the Computational Engineering subject at UPC - ESEIAAT - MUEA
-The repository will be devoted to the development of an exercise about the resolution of a channel flow
-using the potential flow formulation.
+C++ implementation of the resolution of a channel flow considering a potential flow and a finite volume nuermical method.
 
 Check the documentation for a full report on the exercise and its resolution.
